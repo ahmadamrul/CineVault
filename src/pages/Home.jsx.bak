@@ -1,0 +1,17 @@
+import MovieGrid from '../components/movie/MovieGrid';
+import useMovies from '../hooks/useMovies';
+export default function HomePage() {
+  const { movies } = useMovies();
+  return (
+    <div>
+      <section style={{ background: 'linear-gradient(to bottom,rgba(11,12,21,0.7),var(--bg))', padding: 48, borderRadius: 16, marginBottom: 32 }}>
+        <h1 style={{ fontSize: 42, fontWeight: 800 }}>Discover great movies</h1>
+        <p style={{ color: 'var(--muted)', marginTop: 8 }}>Built with TMDB. Modern cinematic discovery.</p>
+      </section>
+      <section><h2 style={{ marginBottom: 16 }}>Trending Movies</h2><MovieGrid items={movies} /></section>
+      <section><h2 style={{ marginBottom: 16 }}>Popular Movies</h2><MovieGrid items={movies} /></section>
+      <section><h2 style={{ marginBottom: 16 }}>Top Rated Movies</h2><MovieGrid items={movies} /></section>
+      <section><h2 style={{ marginBottom: 16 }}>Popular TV</h2><MovieGrid items={movies} /></section>
+    </div>
+  );
+}

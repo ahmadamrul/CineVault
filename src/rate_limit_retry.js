@@ -1,0 +1,2 @@
+/* CV-004: retry 3x, handle 429 */
+export async function fetchWithRetry(url, retries=3){ for(let i=0;i<retries;i++){ try{ const r=await fetch(url); if(r.status===429&&i<retries-1){ await new Promise(p=>setTimeout(p,500)); continue; } return r; }catch(e){ if(i===retries-1) throw e; } } }

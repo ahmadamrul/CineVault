@@ -1,0 +1,63 @@
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { fetchJSON, imgUrl } from '../services/tmdb/client';
+import MovieCard from '../components/movie/MovieCard';
+
+function Section({ title, endpoint, type = 'movie' }) {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    setLoading(true);
+    fetchJSON(endpoint)
+      .then(d => setItems(d.results ? d.results.slice(0, 12) : []))
+      .catch(() => setItems([]))
+      .finally(() => setLoading(false));
+  }, [endpoint]);
+  return (
+    <section style={{ marginBottom: 40 }}>
+      <h2 style={{ marginBottom: 16, fontSize: 22, fontWeight: 700 }}>{title}</h2>
+      <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 8 }}>
+        {loading ? Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} style={{ minWidth: 160, height: 300, background: 'var(--card)', borderRadius: 12 }} />
+        )) : items.map(item => <div key={item.id} style={{ minWidth: 160 }}><MovieCard item={item} type={type} /></div>)}
+      </div>
+    </section>
+  );
+}
+
+export default function HomePage() {
+  const [hero, setHero] = useState(null);
+  useEffect(() => {
+    fetchJSON('/trending/movie/day').then(d => { const first = d.results?.[0]; if (first) setHero(first); });
+  }, []);
+  const heroBg = hero ? imgUrl(hero.backdrop_path, 'w1280') : '';
+  return (
+    <div>
+      <section style={{ position: 'relative', height: 520, borderRadius: 16, overflow: 'hidden', marginBottom: 48 }}>
+        <img src={heroBg || ''} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.55)' }} />
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 32 }}>
+          <h1 style={{ fontSize: 42, fontWeight: 800, marginBottom: 8 }}>{hero ? hero.title : 'Discover great movies'}</h1>
+          <p style={{ color: 'var(--text)', maxWidth: 640, marginBottom: 16, opacity: 0.9 }}>{hero ? hero.overview?.slice(0, 160) + (hero.overview?.length > 160 ? '...' : '') : 'Built with TMDB. Modern cinematic discovery.'}</p>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <Link to={hero ? `/movie/${hero.id}` : '#'} style={{ background: 'var(--accent)', color: '#111', padding: '10px 20px', borderRadius: 8, fontWeight: 600, textDecoration: 'none' }}>View Details</Link>
+          </div>
+        </div>
+      </section>
+      <Section title="Trending Today" endpoint="/trending/movie/day" />
+      <Section title="Trending This Week" endpoint="/trending/movie/week" />
+      <Section title="Popular Movies" endpoint="/movie/popular" />
+      <Section title="Now Playing" endpoint="/movie/now_playing" />
+      <Section title="Top Rated" endpoint="/movie/top_rated" />
+      <Section title="Upcoming Movies" endpoint="/movie/upcoming" />
+      <Section title="Popular TV Shows" endpoint="/tv/popular" type="tv" />
+      <Section title="Action" endpoint="/discover/movie?with_genres=28" />
+      <Section title="Comedy" endpoint="/discover/movie?with_genres=35" />
+      <Section title="Horror" endpoint="/discover/movie?with_genres=27" />
+      <Section title="Science Fiction" endpoint="/discover/movie?with_genres=878" />
+      <Section title="Romance" endpoint="/discover/movie?with_genres=10749" />
+      <Section title="Animation" endpoint="/discover/movie?with_genres=16" />
+      <Section title="Crime" endpoint="/discover/movie?with_genres=80" />
+      <Section title="Adventure" endpoint="/discover/movie?with_genres=12" />
+    </div>
+  );
+}
